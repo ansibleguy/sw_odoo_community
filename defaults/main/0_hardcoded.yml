@@ -1,3 +1,6 @@
 ---
 
+random_pwd_length: '50'  # must be string-type
+tmp_pwd_file_prefix: '/tmp/.ansibleguy.sw_odoo_community'
+
 ODOO_HC: {}

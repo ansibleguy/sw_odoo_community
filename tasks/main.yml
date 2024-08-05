@@ -3,7 +3,7 @@
 - name: Odoo | Checking config
   ansible.builtin.assert:
     that:
-      - ODOO_CONFIG.hostnames|default(none,true) is not none
+      - odoo.hostnames|default(none,true) is not none
   tags: always
 
 - name: Odoo | Processing debian config

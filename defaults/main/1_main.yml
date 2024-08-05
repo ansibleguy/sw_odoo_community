@@ -10,7 +10,7 @@ defaults_odoo:
     webserver: true  # install and configure nginx
     database: true  # install postgresql
 
-  hostnames: []
+  hostnames:
 
   admin_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_odoo_adm chars=ascii_letters,digits length=' + random_pwd_length) }}"
   db:

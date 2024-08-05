@@ -8,4 +8,4 @@
   gather_facts: true
 
   roles:
-    - ansibleguy.sw_odoo
+    - ansibleguy.sw_odoo_community
