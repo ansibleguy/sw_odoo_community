@@ -1,0 +1,118 @@
+---
+
+- name: Odoo | Install dependencies
+  ansible.builtin.apt:
+    name: ['curl', 'gpg']
+    state: present
+
+- name: Odoo | Adding repository key
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl https://nightly.odoo.com/odoo.key |
+    gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
+  args:
+    creates: '/usr/share/keyrings/odoo-archive-keyring.gpg'
+
+- name: Odoo | Download Repository key
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_odoo_community
+      deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/{{ ODOO_CONFIG.version }}/nightly/deb/ ./
+    dest: '/etc/apt/sources.list.d/odoo.list'
+    mode: 0644
+
+- name: Odoo | Install database
+  ansible.builtin.apt:
+    name: ['postgresql', 'postgresql-client']
+    state: present
+  when: ODOO_CONFIG.manage.database | bool
+
+- name: Odoo | Install
+  ansible.builtin.apt:
+    name: ['odoo', 'python3-xlwt']
+    state: present
+  register: odoo_installed
+
+- name: Odoo | Adding config
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_odoo_community
+
+      [options]
+      proxy_mode = True
+      admin_passwd = {{ ODOO_CONFIG.admin_pwd }}
+      db_host = {{ ODOO_CONFIG.db.host }}
+      db_port = {{ ODOO_CONFIG.db.port }}
+      db_user = {{ ODOO_CONFIG.db.user }}
+      db_password = {{ ODOO_CONFIG.db.pwd }}
+
+      ;addons_path = /usr/lib/python3/dist-packages/odoo/addons
+      default_productivity_apps = True
+    dest: '/etc/odoo/odoo.conf'
+    owner: 'root'
+    group: 'odoo'
+    mode: 0640
+
+- name: Odoo | Starting/Enabling database
+  ansible.builtin.systemd:
+    name: 'postgresql.service'
+    enabled: true
+    state: started
+  when: ODOO_CONFIG.manage.database | bool
+
+- name: Odoo | Starting/Enabling service
+  ansible.builtin.systemd:
+    name: 'odoo.service'
+    enabled: true
+    state: started
+
+- name: Odoo | Webserver
+  ansible.builtin.include_role:
+    name: ansibleguy.infra_nginx
+  when: ODOO_CONFIG.manage.webserver | bool
+  vars:
+    # see: https://www.odoo.com/documentation/17.0/administration/on_premise/deploy.html#https
+    odoo_nginx_config_overrides:
+      domain: "{{ ODOO_CONFIG.hostnames | first }}"
+      aliases: "{{ ODOO_CONFIG.hostnames }}"
+      proxy:
+        proto: 'http'
+        port: 8069
+      config_additions:
+        - 'location /websocket { 
+          proxy_pass http://127.0.0.1:8072;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection $connection_upgrade;
+          proxy_set_header X-Forwarded-Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header X-Real-IP $remote_addr;
+  
+          add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+          proxy_cookie_flags session_id samesite=lax secure;
+        }'
+        - 'gzip_types text/css text/scss text/plain text/xml application/xml application/json application/javascript'
+        - 'gzip on'
+      config_additions_root:
+        - 'proxy_redirect off'
+        - 'proxy_cookie_flags session_id samesite=lax secure'
+      security:
+        restrict_methods: false
+
+    nginx:
+      sites:
+        odoo: "{{ ODOO_CONFIG.nginx | combine(odoo_nginx_config_overrides, recursive=true) }}"
+
+  tags: [webserver]
+  args:
+    apply:
+      tags: [webserver]
+
+- name: Odoo | Displaying admin-credentials
+  ansible.builtin.debug:
+    msg: "Make sure to update your 'odoo.db.pwd' and 'odoo.admin_pwd' if not configured!
+    Admin: '{{ ODOO_CONFIG.admin_pwd }}',
+    Database: '{{ ODOO_CONFIG.db.pwd }}'"
+  when: odoo_installed.changed

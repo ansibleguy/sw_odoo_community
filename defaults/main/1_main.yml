@@ -1,0 +1,28 @@
+---
+
+no_prompts: false
+debug: false
+
+# default config => is overwritten by provided config
+defaults_odoo:
+  version: '17.0'
+  manage:
+    webserver: true  # install and configure nginx
+    database: true  # install postgresql
+
+  hostnames: []
+
+  admin_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_odoo_adm chars=ascii_letters,digits length=' + random_pwd_length) }}"
+  db:
+    host: 'False'
+    port: 'False'
+    user: 'odoo'
+    pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_odoo_db chars=ascii_letters,digits length=' + random_pwd_length) }}"
+
+  # see: https://www.odoo.com/documentation/17.0/administration/on_premise/deploy.html#https
+  # see: https://github.com/ansibleguy/infra_nginx
+  nginx:
+    config:
+      proxy_read_timeout: 720s
+      proxy_connect_timeout: 720s
+      proxy_send_timeout: 720s

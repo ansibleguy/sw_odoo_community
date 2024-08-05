@@ -1,0 +1,11 @@
+---
+
+- name: Odoo | Checking config
+  ansible.builtin.assert:
+    that:
+      - ODOO_CONFIG.hostnames|default(none,true) is not none
+  tags: always
+
+- name: Odoo | Processing debian config
+  ansible.builtin.import_tasks: debian/main.yml
+  when: "ansible_distribution|lower in ['debian', 'ubuntu']"

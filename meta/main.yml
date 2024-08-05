@@ -1,0 +1,16 @@
+---
+
+galaxy_info:
+  author: 'AnsibleGuy <guy@ansibleguy.net>'
+  namespace: 'ansibleguy'
+  license: 'MIT'
+  issue_tracker_url: 'https://github.com/ansibleguy/sw_odoo/issues'
+  min_ansible_version: '2.14'
+  description: 'Role to provision Odoo community on a linux server'
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+  galaxy_tags:
+    - 'odoo'
+    - 'erp'

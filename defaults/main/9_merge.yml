@@ -1,0 +1,3 @@
+---
+
+ODOO_CONFIG: "{{ defaults_odoo | combine(odoo, recursive=true) }}"

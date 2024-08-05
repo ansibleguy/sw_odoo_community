@@ -1,0 +1,11 @@
+---
+
+- name: Converge
+  hosts: grp_targets
+  module_defaults:
+    ansible.builtin.setup:
+      gather_subset: ['distribution']
+  gather_facts: true
+
+  roles:
+    - ansibleguy.sw_odoo

@@ -1,0 +1,55 @@
+---
+
+dependency:
+  name: galaxy
+#  options:
+#    requirements-file: 'requirements.yml'
+driver:
+  name: docker
+platforms:
+  - name: test-ag-odoo-tester
+    docker_networks:
+      - name: 'test-ag-odoo'
+        ipam_config:
+          - subnet: '192.168.19.0/24'
+            gateway: '192.168.19.254'
+    networks:
+      - name: 'test-ag-odoo'
+        ipv4_address: '192.168.19.1'
+    groups: [grp_tester]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+  - name: test-ag-odoo-1
+    networks:
+      - name: 'test-ag-odoo'
+        ipv4_address: '192.168.19.2'
+    groups: [grp_targets]
+    docker_host: 'tcp://molecule-docker.local:2375'
+    image: 'ansible0guy/molecule:debian-latest'
+    tmpfs: ['/tmp', '/run', '/run/lock']
+    privileged: true
+    command: '/sbin/init'
+
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      remote_tmp: '/tmp'
+verifier:
+  name: ansible
+scenario:
+  name: default
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify  # MUST NOT make changes
+    - idempotence
+    - check
+    - destroy
