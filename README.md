@@ -6,6 +6,8 @@
 
 Role to deploy [Odoo Community-Edition](https://www.odoo.com/documentation/17.0/administration/on_premise.html)
 
+This role will work to install a self-hosted enterprise-edition installation - but will not completely automate it, as you need a custom setup-binary for it.
+
 <a href='https://ko-fi.com/ansible0guy' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy me a coffee' />
 
 [![Molecule Test Status](https://badges.ansibleguy.net/sw_odoo_community.molecule.svg)](https://github.com/ansibleguy/_meta_cicd/blob/latest/templates/usr/local/bin/cicd/molecule.sh.j2)
@@ -89,6 +91,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
   * **Default opt-ins**:
     * Install postgresql database
     * Install nginx webserver
+    * Daily Database-Backup job
 
 ----
 
@@ -109,3 +112,36 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 
 
 * **Note:** You might want to [block login-failure using Fail2Ban](https://www.odoo.com/documentation/17.0/administration/on_premise/deploy.html#blocking-brute-force-attacks)
+
+
+* **Note:** The `Master password` on the setup-screen is the `admin_pwd` set by this role. It is saved in the `/etc/odoo/odoo.conf` file.
+
+
+* **Note:** If you want to change to the **enterprise-edition** you will have to set `odoo.enterprise: true` so the community repository will get removed.
+
+    Docs: [odoo Docs](https://www.odoo.com/documentation/17.0/administration/on_premise/community_to_enterprise.html#on-linux-using-an-installer)
+
+    You have to:
+
+    * Install the community-edition first
+    * Stop the service: `systemctl stop odoo.service`
+    * Download the enterprise binary `.deb` and install it as root: `dpkg -i odoo-enterprise.deb`
+
+    NOTE: Migrating from enterprise back to community edition is not easy!
+
+
+* **Tip:** You can reset your admin-user password like this:
+
+    ```bash
+    # generate hash
+    export PWD='MY_PASSWORD'
+    python3 -c "from os import environ; from passlib.context import CryptContext; print(CryptContext(['pbkdf2_sha512']).hash(environ['PWD']))"
+    # update hash in DB
+    su --login postgres
+    psql
+    \c odoo
+    # check we have the correct account
+    SELECT login, password FROM res_users WHERE id=2;
+    # update it (change HASH to the value you got by running the 'python3' command above)
+    UPDATE res_users SET password='HASH' WHERE id=2;    
+    ```

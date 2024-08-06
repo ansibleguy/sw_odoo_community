@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+# ansibleguy.sw_odoo_community
+
+[Unit]
+Description=Timer to backup Odoo database
+
+[Timer]
+OnCalendar={{ ODOO_CONFIG.backup.timer }}
+Persistent=false
+WakeSystem=false
+
+[Install]
+WantedBy=multi-user.target

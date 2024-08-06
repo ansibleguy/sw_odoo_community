@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+# ansibleguy.sw_odoo_community
+
+[Unit]
+Requires=postgresql.service
+Documentation=https://github.com/ansibleguy/sw_odoo_community
+
+[Service]
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=odoo
+Restart=on-failure
+RestartSec=60s

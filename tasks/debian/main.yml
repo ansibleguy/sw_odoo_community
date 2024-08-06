@@ -24,7 +24,7 @@
     creates: '/usr/share/keyrings/odoo-archive-keyring.gpg'
     executable: '/bin/bash'
 
-- name: Odoo | Repository
+- name: Odoo | Community Repository
   ansible.builtin.copy:
     content: |
       # ansible_managed
@@ -32,6 +32,17 @@
       deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/{{ ODOO_CONFIG.version }}/nightly/deb/ ./
     dest: '/etc/apt/sources.list.d/odoo.list'
     mode: 0644
+  when: not ODOO_CONFIG.enterprise | bool
+
+- name: Odoo | Repository
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_odoo_community
+      # deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/{{ ODOO_CONFIG.version }}/nightly/deb/ ./
+    dest: '/etc/apt/sources.list.d/odoo.list'
+    mode: 0644
+  when: ODOO_CONFIG.enterprise | bool
 
 - name: Odoo | Install database
   ansible.builtin.apt:
@@ -68,6 +79,18 @@
     mode: 0640
   no_log: true
 
+- name: Odoo | Adding service-override directory
+  ansible.builtin.file:
+    path: '/etc/systemd/system/odoo.service.d'
+    mode: 0750
+    state: directory
+
+- name: Odoo | Adding service-override
+  ansible.builtin.template:
+    src: 'templates/etc/systemd/system/odoo.service.d/override.conf.j2'
+    dest: '/etc/systemd/system/odoo.service.d/override.conf'
+    mode: 0640
+
 - name: Odoo | Starting/Enabling database
   ansible.builtin.systemd:
     name: 'postgresql.service'
@@ -80,6 +103,43 @@
     name: 'odoo.service'
     enabled: true
     state: started
+    daemon_reload: true
+
+- name: Odoo | Adding backup directory
+  ansible.builtin.file:
+    path: "{{ ODOO_CONFIG.backup.path }}"
+    mode: 0750
+    state: directory
+    owner: 'root'
+    group: 'odoo'
+  when: ODOO_CONFIG.backup.enable | bool
+
+- name: Odoo | Adding backup script and service
+  ansible.builtin.template:
+    src: "templates/{{ item.s }}.j2"
+    dest: "{{ item.s }}"
+    mode: "{{ item.m | default('0644') }}"
+  loop:
+    - {s: '/etc/systemd/system/odoo-backup.service'}
+    - {s: '/etc/systemd/system/odoo-backup.timer'}
+    - {s: '/usr/local/bin/odoo_backup.sh', m: '0750'}
+  when: ODOO_CONFIG.backup.enable | bool
+
+- name: Odoo | Starting/Enabling backup timer
+  ansible.builtin.systemd:
+    name: 'odoo-backup.timer'
+    enabled: true
+    state: started
+    daemon_reload: true
+  when: ODOO_CONFIG.backup.enable | bool
+
+- name: Odoo | Stopping/Disabling backup timer
+  ansible.builtin.systemd:
+    name: 'odoo-backup.timer'
+    enabled: false
+    state: stopped
+  ignore_errors: true
+  when: not ODOO_CONFIG.backup.enable | bool
 
 - name: Odoo | Webserver
   ansible.builtin.include_role:
@@ -130,7 +190,7 @@
 - name: Odoo | Displaying auto-generated credentials
   ansible.builtin.debug:
     msg: "Make sure to update your 'odoo.db.pwd' and 'odoo.admin_pwd' if not configured!
-    Admin: '{{ ODOO_CONFIG.admin_pwd }}',
+    Admin/Master: '{{ ODOO_CONFIG.admin_pwd }}',
     Database: '{{ ODOO_CONFIG.db.pwd }}'"
   when: >
     odoo_installed.changed and
