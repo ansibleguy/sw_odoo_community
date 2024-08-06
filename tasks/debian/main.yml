@@ -15,15 +15,16 @@
     name: ['curl', 'gpg']
     state: present
 
-- name: Odoo | Adding repository key
+- name: Odoo | Repository key
   ansible.builtin.shell: |
     set -o pipefail
     curl https://nightly.odoo.com/odoo.key |
     gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
   args:
     creates: '/usr/share/keyrings/odoo-archive-keyring.gpg'
+    executable: '/bin/bash'
 
-- name: Odoo | Download Repository key
+- name: Odoo | Repository
   ansible.builtin.copy:
     content: |
       # ansible_managed
@@ -42,6 +43,7 @@
   ansible.builtin.apt:
     name: ['odoo', 'python3-xlwt']
     state: present
+    update_cache: true
   register: odoo_installed
 
 - name: Odoo | Adding config
