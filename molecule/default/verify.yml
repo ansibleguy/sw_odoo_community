@@ -1,13 +1,48 @@
 ---
 
 - name: Verify
+  hosts: test-ag-odoo-1
+  gather_facts: false
+  tasks:
+    - name: Checking that services are running and enabled
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      check_mode: true
+      register: svc_test
+      loop:
+        - 'postgresql.service'
+        - 'odoo.service'
+      failed_when: svc_test.changed
+
+    - name: Checking that services survive restart
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: restarted
+        no_block: true
+      loop:
+        - 'postgresql.service'
+        - 'odoo.service'
+
+    - name: Checking ports  # only working if service is listening on 0.0.0.0
+      ansible.builtin.wait_for:
+        port: "{{ item }}"
+        timeout: 1
+        msg: "Checking port {{ item }}"
+      loop:
+        - 80
+        - 443
+        - 8069
+
+- name: Verify
   hosts: grp_tester
   gather_facts: false
-  tasks: []
-  #  - name: Checking if zoneminder web-service is reachable
-  #    ansible.builtin.uri:
-  #      url: 'https://192.168.0.2'
-  #      return_content: yes
-  #      validate_certs: false
-  #    register: page
-  #    failed_when: "'Zoneminder' not in page.content"
+  tasks:
+    - name: Checking if odoo web-service is reachable
+      ansible.builtin.uri:
+        url: 'https://192.168.19.2'
+        return_content: yes
+        validate_certs: false
+      register: page
+      failed_when: "'Odoo' not in page.content"

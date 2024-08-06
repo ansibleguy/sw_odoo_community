@@ -7,5 +7,9 @@
       gather_subset: ['distribution']
   gather_facts: true
 
+  vars:
+    odoo:
+      hostnames: 'odoo.test.ansibleguy.net'
+
   roles:
     - ansibleguy.sw_odoo_community
