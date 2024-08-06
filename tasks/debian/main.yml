@@ -127,9 +127,14 @@
     apply:
       tags: [webserver]
 
-- name: Odoo | Displaying admin-credentials
+- name: Odoo | Displaying auto-generated credentials
   ansible.builtin.debug:
     msg: "Make sure to update your 'odoo.db.pwd' and 'odoo.admin_pwd' if not configured!
     Admin: '{{ ODOO_CONFIG.admin_pwd }}',
     Database: '{{ ODOO_CONFIG.db.pwd }}'"
-  when: odoo_installed.changed
+  when: >
+    odoo_installed.changed and
+    (
+    ODOO_CONFIG.admin_pwd == defaults_odoo.admin_pwd or
+    ODOO_CONFIG.db.pwd == defaults_odoo.db.pwd
+    )
