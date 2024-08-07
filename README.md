@@ -117,6 +117,9 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 * **Note:** The `Master password` on the setup-screen is the `admin_pwd` set by this role. It is saved in the `/etc/odoo/odoo.conf` file.
 
 
+* **Tip:** You can enhance your Odoo-community functionality using community apps. You especially might want to check out the ones provided by the [Odoo Community Association](https://apps.odoo.com/apps/modules/browse?order=Downloads&author=Odoo+Community+Association+%28OCA%29)
+
+
 * **Note:** If you want to change to the **enterprise-edition** you will have to set `odoo.enterprise: true` so the community repository will get removed.
 
     Docs: [odoo Docs](https://www.odoo.com/documentation/17.0/administration/on_premise/community_to_enterprise.html#on-linux-using-an-installer)
