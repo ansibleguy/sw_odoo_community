@@ -86,6 +86,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 * **Configuration**
   * **Default config**:
     * Auto-generated passwords
+    * Addons directory: `/var/local/odoo/addons`
  
 
   * **Default opt-ins**:
@@ -117,7 +118,23 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 * **Note:** The `Master password` on the setup-screen is the `admin_pwd` set by this role. It is saved in the `/etc/odoo/odoo.conf` file.
 
 
-* **Tip:** You can enhance your Odoo-community functionality using community apps. You especially might want to check out the ones provided by the [Odoo Community Association](https://apps.odoo.com/apps/modules/browse?order=Downloads&author=Odoo+Community+Association+%28OCA%29)
+* **Tip:** You can enhance your Odoo-community functionality using community apps. You especially might want to check out the ones provided by the [Odoo Community Association](https://github.com/OCA?q=&type=all&language=&sort=stargazers)
+
+    To install 3th-party apps you have to:
+
+    * Select your Odoo-Version and Download its ZIP
+
+      <img src="https://raw.githubusercontent.com/ansibleguy/sw_odoo_community/latest/docs/app_download.png" alt="Odoo app download" width="300"/>
+  
+    * Move the ZIP to your server and place it inside the addons-directory (`/var/local/odoo/addons` by default in this setup) 
+
+    * Unzip it: `cd /var/local/odoo/addons && unzip project-17.0.zip`
+
+    * Move the modules you want/need: `mv project-17.0/project_* /var/local/odoo/addons/`
+
+    * Clean-up: `rm -r /var/local/odoo/addons/project-17.0/`
+
+    * Restart odoo: `systemctl restart odoo.service`
 
 
 * **Note:** If you want to change to the **enterprise-edition** you will have to set `odoo.enterprise: true` so the community repository will get removed.

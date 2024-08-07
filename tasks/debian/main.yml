@@ -12,7 +12,7 @@
 
 - name: Odoo | Install dependencies
   ansible.builtin.apt:
-    name: ['curl', 'gpg']
+    name: ['curl', 'gpg', 'zip']
     state: present
 
 - name: Odoo | Repository key
@@ -57,6 +57,14 @@
     update_cache: true
   register: odoo_installed
 
+- name: Odoo | Adding addons directory
+  ansible.builtin.file:
+    path: "{{ ODOO_CONFIG.path.addons }}"
+    mode: 0750
+    state: directory
+    owner: 'root'
+    group: 'odoo'
+
 - name: Odoo | Adding config
   ansible.builtin.copy:
     content: |
@@ -71,7 +79,7 @@
       db_user = {{ ODOO_CONFIG.db.user }}
       db_password = {{ ODOO_CONFIG.db.pwd }}
 
-      ;addons_path = /usr/lib/python3/dist-packages/odoo/addons
+      addons_path = {{ ODOO_CONFIG.path.addons }}
       default_productivity_apps = True
     dest: '/etc/odoo/odoo.conf'
     owner: 'root'
