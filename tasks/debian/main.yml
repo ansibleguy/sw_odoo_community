@@ -56,6 +56,7 @@
     state: present
     update_cache: true
   register: odoo_installed
+  when: not ODOO_CONFIG.enterprise | bool
 
 - name: Odoo | Adding addons directory
   ansible.builtin.file:
@@ -112,6 +113,7 @@
     enabled: true
     state: started
     daemon_reload: true
+  when: not ODOO_CONFIG.enterprise | bool
 
 - name: Odoo | Adding backup directory
   ansible.builtin.file:
@@ -119,7 +121,7 @@
     mode: 0750
     state: directory
     owner: 'root'
-    group: 'odoo'
+    group: 'postgres'
   when: ODOO_CONFIG.backup.enable | bool
 
 - name: Odoo | Adding backup script and service

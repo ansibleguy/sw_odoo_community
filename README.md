@@ -154,8 +154,8 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 
     ```bash
     # generate hash
-    export PWD='MY_PASSWORD'
-    python3 -c "from os import environ; from passlib.context import CryptContext; print(CryptContext(['pbkdf2_sha512']).hash(environ['PWD']))"
+     export MYPWD='MY_PASSWORD'
+    python3 -c "from os import environ; from passlib.context import CryptContext; print(CryptContext(['pbkdf2_sha512']).hash(environ['MYPWD']))"
     # update hash in DB
     su --login postgres
     psql
@@ -164,4 +164,32 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
     SELECT login, password FROM res_users WHERE id=2;
     # update it (change HASH to the value you got by running the 'python3' command above)
     UPDATE res_users SET password='HASH' WHERE id=2;    
+    ```
+
+* **Note:** You can restore the database from a dump like this:
+
+    ```bash
+    su --login postgres
+  
+    # make sure to backup your current state
+    pg_dumpall | xz > "./odoo_$(date '+%Y-%m-%d_%H-%M').sql.xz"
+
+    # restore
+    xzcat odoo_<DATETIME>.sql.xz | psql -d odoo
+    ```
+
+    You can also manage your databases from this URL: `https://<YOUR-DOMAIN>/web/database/manager`
+
+    Also note that the Odoo online setups might use newer versions than you can use on-premise. So you might need to contact the support on how to migrate the database.
+
+* **Note:** The file backups are created from `/var/lib/odoo/` - this contains data like the `filestore`
+
+
+* **Note:** If you want to limit outbound connections you might need to allow HTTP+S connections to these:
+
+    ```
+    nightly.odoo.com
+    apps.odoo.com
+    partner-autocomplete.odoo.com
+    www.odoo.com
     ```

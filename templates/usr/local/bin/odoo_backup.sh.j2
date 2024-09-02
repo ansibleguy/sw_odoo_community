@@ -4,7 +4,9 @@ set -euo pipefail
 
 BACKUP_DIR='{{ ODOO_CONFIG.backup.path }}'
 RETENTION='{{ ODOO_CONFIG.backup.retention_days }}'
-OUT_NAME="odoo_$(date '+%Y-%m-%d_%H-%M').sql.xz"
+OUT_NAME="odoo_$(date '+%Y-%m-%d_%H-%M')"
+OUT_NAME_DB="${OUT_NAME}.sql.xz"
+OUT_NAME_FILE="${OUT_NAME}.file.xz"
 
 if [ -d "$BACKUP_DIR" ]
 then
@@ -14,12 +16,14 @@ then
 fi
 
 echo 'CREATING BACKUP'
-sudo -u postgres pg_dumpall | xz > "${BACKUP_DIR}/${OUT_NAME}"
-chmod 640 "${BACKUP_DIR}/${OUT_NAME}"
-chown root:odoo "${BACKUP_DIR}/${OUT_NAME}"
+sudo -u postgres pg_dumpall | xz > "${BACKUP_DIR}/${OUT_NAME_DB}"
+tar -cJf "${BACKUP_DIR}/${OUT_NAME_FILE}" '/var/lib/odoo/'
 
-echo 'DELETING OLD BACKUPS:'
-find "$BACKUP_DIR" -name '*.sql.xz' -type f -mtime +"$RETENTION"
-find "$BACKUP_DIR" -name '*.sql.xz' -type f -mtime +"$RETENTION" -delete
+chmod 640 "${BACKUP_DIR}/${OUT_NAME_DB}" "${BACKUP_DIR}/${OUT_NAME_FILE}"
+chown root:odoo "${BACKUP_DIR}/${OUT_NAME_DB}" "${BACKUP_DIR}/${OUT_NAME_FILE}"
+
+echo 'DELETING OLD BACKUPS'
+find "$BACKUP_DIR" -name '*.xz' -type f -mtime +"$RETENTION"
+find "$BACKUP_DIR" -name '*.xz' -type f -mtime +"$RETENTION" -delete
 
 echo 'FINISHED'
