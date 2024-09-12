@@ -17,7 +17,7 @@ fi
 
 echo 'CREATING BACKUP'
 sudo -u postgres pg_dumpall | xz > "${BACKUP_DIR}/${OUT_NAME_DB}"
-tar -cJf "${BACKUP_DIR}/${OUT_NAME_FILE}" '/var/lib/odoo/'
+tar -cJf "${BACKUP_DIR}/${OUT_NAME_FILE}" '/var/lib/odoo/' '{{ ODOO_CONFIG.path.addons }}'
 
 chmod 640 "${BACKUP_DIR}/${OUT_NAME_DB}" "${BACKUP_DIR}/${OUT_NAME_FILE}"
 chown root:odoo "${BACKUP_DIR}/${OUT_NAME_DB}" "${BACKUP_DIR}/${OUT_NAME_FILE}"
