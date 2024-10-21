@@ -52,7 +52,7 @@
 
 - name: Odoo | Install
   ansible.builtin.apt:
-    name: ['odoo', 'python3-xlwt']
+    name: ['odoo', 'python3-xlwt', 'wkhtmltopdf']
     state: present
     update_cache: true
   register: odoo_installed
