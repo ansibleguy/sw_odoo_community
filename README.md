@@ -150,9 +150,6 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
     NOTE: Migrating from enterprise back to community edition is not easy!
 
 
-* **Note:** For PDF generation and printing to work - you will have to install [wkhtmltopdf](https://github.com/wkhtmltopdf/packaging/releases)
-
-
 * **Tip:** You can reset your admin-user password like this:
 
     ```bash
@@ -196,3 +193,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
     partner-autocomplete.odoo.com
     www.odoo.com
     ```
+
+* **Note:** For PDF generation and printing to work - you will have to install [wkhtmltopdf](https://github.com/wkhtmltopdf/packaging/releases)
+
+    You may want to check the log file if any errors occur: `tail -f /var/log/odoo/odoo-server.log`
