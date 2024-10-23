@@ -197,3 +197,9 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 * **Note:** For PDF generation and printing to work - you will have to install [wkhtmltopdf](https://github.com/wkhtmltopdf/packaging/releases)
 
     You may want to check the log file if any errors occur: `tail -f /var/log/odoo/odoo-server.log`
+
+    You may also need to add the system parameter: `report.url=http://127.0.0.1:8069` (wkhtmltopdf `UnknownNetworkError`)
+
+    Also add your Odoo FQDN to your `/etc/hosts` and redirect it to `127.0.0.1` instead of using actual public IPs (*if you are behind proxies*)
+
+    You can test it manually: `wkhtmltopdf https://<FQDN>/web/login /tmp/test1.pdf` and `wkhtmltopdf http://127.0.0.1:8069/web/login /tmp/test2.pdf`
