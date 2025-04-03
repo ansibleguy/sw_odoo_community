@@ -6,9 +6,7 @@
 {% for key, value in ODOO_CONFIG.conf.items() %}
 {%   if value is boolean %}
 {{ key }} = {{ 'True' if value | bool else 'False' }}
-{%   elif value is number %}
-{{ key }} = {{ value }}
 {%   else %}
-{{ key }} = "{{ value }}"
+{{ key }} = {{ value }}
 {%   endif %}
 {% endfor %}
