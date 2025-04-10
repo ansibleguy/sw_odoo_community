@@ -62,7 +62,7 @@
 - name: Odoo | Install database
   ansible.builtin.apt:
     name: ['postgresql', 'postgresql-client']
-    state: present
+    state: latest
   when: ODOO_CONFIG.manage.database | bool
 
 - name: Odoo | Install
