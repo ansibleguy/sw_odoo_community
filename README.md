@@ -49,7 +49,7 @@ ansible-galaxy install -r requirements.yml
 ```yaml
 odoo:
   hostnames: 'erp.template.ansibleguy.net'
-  admin_pwd: !vault |
+  admin_passwd: !vault |
     ...
 
   db:
@@ -120,7 +120,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 * **Note:** You might want to [block login-failure using Fail2Ban](https://www.odoo.com/documentation/17.0/administration/on_premise/deploy.html#blocking-brute-force-attacks)
 
 
-* **Note:** The `Master password` on the setup-screen is the `admin_pwd` set by this role. It is saved in the `/etc/odoo/odoo.conf` file.
+* **Note:** The `Master password` on the setup-screen is the `admin_passwd` set by this role. It is saved in the `/etc/odoo/odoo.conf` file.
 
 
 * **Tip:** You can enhance your Odoo-community functionality using community apps. You especially might want to check out the ones provided by the [Odoo Community Association](https://github.com/OCA?q=&type=all&language=&sort=stargazers)
