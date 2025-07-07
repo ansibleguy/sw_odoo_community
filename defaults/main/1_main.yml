@@ -17,7 +17,7 @@ defaults_odoo:
   conf:
     proxy_mode: true
     # admin-pwd = database master-pwd
-    admin_passwd: "{{ odoo.admin_pwd | default(lookup('password', tmp_pwd_file_prefix + '_odoo_adm chars=ascii_letters,digits length=' + random_pwd_length)) }}"
+    admin_passwd: "{{ odoo.admin_passwd | default(lookup('password', tmp_pwd_file_prefix + '_odoo_adm chars=ascii_letters,digits length=' + random_pwd_length)) }}"
     db_host: "{{ odoo.db.host | default(false) }}"
     db_port: "{{ odoo.db.port | default(false) }}"
     db_user: "{{ odoo.db.user | default('odoo') }}"
