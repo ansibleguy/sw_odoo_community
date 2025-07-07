@@ -2,7 +2,7 @@
 # ansibleguy.sw_odoo_community
 
 [Unit]
-Requires=postgresql.service
+{% if ODOO_CONFIG.manage.database %}Requires=postgresql.service{% endif %}
 Documentation=https://github.com/ansibleguy/sw_odoo_community
 
 [Service]
