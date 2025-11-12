@@ -5,6 +5,10 @@
     var: odoo
   when: debug | bool
 
+- name: Odoo | Set ODOO_CONFIG fact
+  ansible.builtin.set_fact:
+    ODOO_CONFIG: "{{ ODOO_CONFIG }}"
+
 - name: Odoo | Showing debug info - running config
   ansible.builtin.debug:
     var: ODOO_CONFIG
