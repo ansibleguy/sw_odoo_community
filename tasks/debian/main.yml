@@ -4,7 +4,7 @@
   ansible.builtin.debug:
     var: odoo
   when: debug | bool
-  
+
 - name: Odoo | Set ODOO_CONFIG fact
   ansible.builtin.set_fact:
     ODOO_CONFIG: "{{ ODOO_CONFIG }}"
